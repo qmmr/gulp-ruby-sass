@@ -30,20 +30,19 @@ function newErr (err, opts) {
 }
 
 // for now, source is only a single directory or a single file
-// TODO: implement glob source
 module.exports = function (source, options) {
 	var stream = new Readable({objectMode: true});
 	var cwd = process.cwd();
+	var defaults = {
+		container: 'gulp-ruby-sass',
+		verbose: false
+	};
 	var command;
 	var args;
 	var base;
 	var destDir;
 	var destFile;
 	var compileMappings;
-	var defaults = {
-		container: 'gulp-ruby-sass',
-		verbose: false
-	};
 
 	// redundant but necessary
 	stream._read = function () {};
@@ -51,15 +50,21 @@ module.exports = function (source, options) {
 	options = assign(defaults, options);
 
 	// sourcemap can only be true or false; warn those trying to pass a Sass string option
-	if (typeof options.sourcemap === 'string') {
+	if (typeof options.sourcemap !== 'boolean') {
 		throw newErr('The sourcemap option must be true or false. See the readme for instructions on using Sass sourcemaps with gulp.');
 	}
 
-	// reassign options.sourcemap boolean to our two acceptable Sass arguments
-	options.sourcemap = options.sourcemap ? 'file' : 'none';
+	// reassign options.sourcemap boolean to one of our two acceptable Sass arguments
+	options.sourcemap = options.sourcemap === true ? 'file' : 'none';
 
 	// sass options need unix style slashes
 	destDir = slash(path.join(osTempDir, options.container));
+
+	// RWRWERRWRWRWR
+	// RWRWERRWRWRWR
+	// RWRWERRWRWRWR
+
+	// Can probabaly clean up VV by normalizing source, compileMappings (do array, then join if dir)
 
 	// directory source
 	if (path.extname(source) === '') {
