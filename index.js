@@ -125,7 +125,7 @@ module.exports = function (source, options) {
 		if (isError) {
 			stream.emit('error', newErr(msg));
 		} else {
-			gutil.log('gulp-ruby-sass stdout:', msg);
+			gutil.log('gulp-ruby-sass:', msg);
 		}
 	});
 
@@ -139,7 +139,7 @@ module.exports = function (source, options) {
 			stream.emit('error', newErr(msg));
 		}
 		else if (!matchNoSass.test(msg)) {
-			gutil.log('gulp-ruby-sass stderr:', msg);
+			gutil.log('gulp-ruby-sass:', msg);
 		}
 	});
 
