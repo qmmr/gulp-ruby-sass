@@ -14,6 +14,7 @@ var convert = require('convert-source-map');
 var eachAsync = require('each-async');
 var osTempDir = require('os').tmpdir();
 
+// RWRW Rename to logger
 var errorHandler = require('./error-handler')
 
 var File = require('vinyl');
@@ -83,7 +84,7 @@ module.exports = function (source, options) {
 
 	// plugin logging
 	if (options.verbose) {
-		gutil.log('gulp-ruby-sass', 'Running command:', command, args.join(' '));
+		errorHandler.verbose(command, args);
 	}
 
 	var sass = spawn(command, args);
@@ -91,52 +92,22 @@ module.exports = function (source, options) {
 	sass.stdout.setEncoding('utf8');
 	sass.stderr.setEncoding('utf8');
 
-	// sass stdout: successful compile messages
-	// bundler stdout: bundler not installed, no gemfile, correct version of sass not installed
 	sass.stdout.on('data', function (data) {
 		errorHandler.stdout(data, stream);
-		// var msg = formatMsg(data, destDir);
-		// var isError = [
-		// 	matchSassErr,
-		// 	matchNoBundler,
-		// 	matchNoGemfile,
-		// 	matchNoBundledSass
-		// ].some(function (match) {
-		// 	return match.test(msg);
-		// });
-
-		// if (isError) {
-		// 	stream.emit('error', newErr(msg));
-		// } else {
-		// 	gutil.log('gulp-ruby-sass:', msg);
-		// }
 	});
 
-	// sass stderr: warnings, debug statements
-	// bundler stderr: no version of sass installed
-	// spawn stderr: no sass executable
 	sass.stderr.on('data', function (data) {
-		// var msg = formatMsg(data, destDir);
-
-		// if (matchNoBundledSass.test(msg)) {
-		// 	stream.emit('error', newErr(msg));
-		// }
-		// else if (!matchNoSass.test(msg)) {
-		// 	gutil.log('gulp-ruby-sass:', msg);
-		// }
+		errorHandler.stderr(data, stream);
 	});
 
-	// spawn error: no sass executable
 	sass.on('error', function (err) {
-		// if (matchNoSass.test(err)) {
-		// 	err.message = msgNoSass;
-		// }
-		// stream.emit('error', newErr(err));
+		errorHandler.error(err, stream);
 	});
 
 	sass.on('close', function (code) {
 		glob(path.join(destDir, '**', '*'), function (err, files) {
 			if (err) {
+				// RWRW Make these just errors?
 				stream.emit('error', new gutil.PluginError('gulp-ruby-sass', err));
 			}
 
@@ -148,6 +119,7 @@ module.exports = function (source, options) {
 
 				fs.readFile(file, function (err, data) {
 					if (err) {
+						// RWRW Make these just errors?
 						stream.emit('error', new gutil.PluginError('gulp-ruby-sass', err));
 						next();
 						return;
